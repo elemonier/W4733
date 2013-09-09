@@ -41,16 +41,18 @@ function finalRad= ControlProgram1(serPort)
     % Start robot moving
     SetFwdVelAngVelCreate(serPort,v,w);
     
-while(toc(tStart) < maxDuration))  
-    while( bumped= bumpCheck(serPort) )
-       turnAngle(serPort, .5, pi/8);
-    end
+    while (toc(tStart) < maxDuration)
+        bumped = bumpCheck(serPort);
+        if bumped
+            turnAngle(serPort, .2, pi/8);
+        end
+    %end
     %turnAngle(serPort, .5, -pi/8);
     %while(leftbump = forwardCheck(serPort))
     %    SetFwdAngVelCreate(serPort, 0, 0);
-    %end
-    %pause(0.1)
-end
+    pause(0.1);
+    end
+
     
     % Specify output parameter
     finalRad= v/w;
@@ -92,7 +94,7 @@ function leftbump = forwardCheck(serPort)
 % serPort - Serial port object, used for communicating over bluetooth
 %
 % Output:
-% bumped - Boolean, true if bump sensor is activated
+% leftbump - Boolean, true if bump sensor is activated
 
     % Check bump sensors (ignore wheel drop sensors)
     [BumpRight BumpLeft WheDropRight WheDropLeft WheDropCaster ...
