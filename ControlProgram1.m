@@ -13,11 +13,6 @@ function finalRad= ControlProgram1(serPort)
 % Output:
 % finalRad - Double, final turning radius of the Create (m)
 
-% ExampleControlProgram.m
-% Copyright (C) 2011 Cornell University
-% This code is released under the open-source BSD license.  A copy of this
-% license should be provided with the software.  If not, email:
-% CreateMatlabSim@gmail.com
 
     % Set constants for this program
     maxDuration= 1200;  % Max time to allow the program to run (s)
@@ -41,17 +36,40 @@ function finalRad= ControlProgram1(serPort)
     % Start robot moving
     SetFwdVelAngVelCreate(serPort,v,w);
     
+    %reset algo
     while (toc(tStart) < maxDuration)
         bumped = bumpCheck(serPort);
-        if bumped
+        
+         bumped
             turnAngle(serPort, .2, pi/8);
+            bumped = bumpCheck(serPort);
+
         end
-    %end
-    %turnAngle(serPort, .5, -pi/8);
-    %while(leftbump = forwardCheck(serPort))
-    %    SetFwdAngVelCreate(serPort, 0, 0);
+        
+        %force right bump
+        turnAngle(serPort, .5, -pi/8);
+        rightbumped = rightCheck(serPort);
+        while rightbumped
+            SetFwdVelAngVelCreate(serPort,v,w);
+            rightbumped = rightCheck(serPort);
+        end
+        
+        %while leftbump
+        %while not bumped
+        %turnAngle(serPort, .5, -pi/8);
+        %end
+        %rightbump = forwardCheck(serPort);
+        %while rightbump
+        %    SetFwdAngVelCreate(serPort, 0, 0);
+        %end
     pause(0.1);
     end
+    
+   % turnAngle(serPort, .5, -pi/8);
+    %
+    %leftbump = forwardCheck(serPort)
+    %while(leftbump = forwardCheck(serPort))
+    %    SetFwdAngVelCreate(serPort, 0, 0);
 
     
     % Specify output parameter
@@ -87,7 +105,7 @@ function bumped = bumpCheck(serPort)
 
 end
 
-function leftbump = forwardCheck(serPort)
+function rightbump = rightCheck(serPort)
 % Check bump sensors and steer the robot away from obstacles if necessary
 %
 % Input:
@@ -99,7 +117,7 @@ function leftbump = forwardCheck(serPort)
     % Check bump sensors (ignore wheel drop sensors)
     [BumpRight BumpLeft WheDropRight WheDropLeft WheDropCaster ...
         BumpFront] = BumpsWheelDropsSensorsRoomba(serPort);
-    leftbump= BumpLeft;
+    rightbump= BumpRight;
 end
 
 
