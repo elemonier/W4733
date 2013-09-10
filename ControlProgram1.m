@@ -38,21 +38,34 @@ function finalRad= ControlProgram1(serPort)
     
     %reset algo
     while (toc(tStart) < maxDuration)
+        initialHit = 1;
+        initialBump = 1;
+
+        %wall encounter
         bumped = bumpCheck(serPort);
         
-         bumped
-            turnAngle(serPort, .2, pi/8);
-            bumped = bumpCheck(serPort);
+        if bumped && initialHit
+            Reset(serPort);
+            initialHit = 1;
+        end
 
+        if ~bumped && initialBump
+            turnAngle(serPort, .5, -pi/8);
+            SetFwdVelAngVelCreate(serPort,v,w);
+            initialBump = 0;
+        else ~bumped && ~initialBump
+            SetFwdVelAngVelCreate(serPort,v,w);
         end
         
         %force right bump
-        turnAngle(serPort, .5, -pi/8);
-        rightbumped = rightCheck(serPort);
-        while rightbumped
-            SetFwdVelAngVelCreate(serPort,v,w);
-            rightbumped = rightCheck(serPort);
-        end
+        %if a
+        %    turnAngle(serPort, .5, -pi/8);
+        %end
+        %rightbumped = rightCheck(serPort);
+        %while rightbumped
+        %    SetFwdVelAngVelCreate(serPort,v,w);
+        %    rightbumped = rightCheck(serPort);
+        %end
         
         %while leftbump
         %while not bumped
@@ -137,3 +150,21 @@ function w= v2w(v)
     % Max velocity combinations obey rule v+wr <= v_max
     w= (maxWheelVel-v)/robotRadius;
 end
+
+function Reset(serPort)
+% Calculate the maximum allowable angular velocity from the linear velocity
+%
+% Input:
+% v - Forward velocity of Create (m/s)
+%
+% Output:
+% w - Angular velocity of Create (rad/s)
+    bumped = bumpCheck(serPort);
+    while bumped
+        turnAngle(serPort, .2, pi/8);
+        bumped = bumpCheck(serPort);
+    end
+    a = 1;
+end
+
+
